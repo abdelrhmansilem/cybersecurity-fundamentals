@@ -70,8 +70,9 @@
 39. [Curl Common Options & Flags](#39-curl-common-options--flags)
 40. [JADX & Mobile Testing](#40-jadx--mobile-testing)
 41. [Quick Tips](#41-quick-tips)
+42. [Understanding Version Numbers (SemVer)](#42-understanding-version-numbers-semver)
 
-42. [Suggested Learning Path](#42-suggested-learning-path)
+43. [Suggested Learning Path](#43-suggested-learning-path)
 
 ---
 
@@ -1204,7 +1205,29 @@ Client-IP: 127.0.0.1
 X-Client-IP: 127.0.0.1
 ```
 
-### 42. Suggested Learning Path
+### 42. Understanding Version Numbers (SemVer)
+
+Most software releases follow **Semantic Versioning (SemVer)** — three numbers separated by dots:
+
+```
+MAJOR . MINOR . PATCH
+```
+
+**Example: `14.22.1`**
+
+| Number | Part | Meaning |
+|---|---|---|
+| **14** | **Major** | Big releases with breaking changes — new features that change how the software works, may not be compatible with older versions |
+| **22** | **Minor** | New features added **without** breaking anything — backward compatible |
+| **1** | **Patch** | Small fixes — bug fixes and **security patches** |
+
+**Why it matters in security:**
+
+- Version numbers tell you **how outdated** a product is — e.g. the `Server: nginx/1.15.8` header in an HTTP response
+- **CVEs apply to specific version ranges** — knowing the exact version tells you which known vulnerabilities might work
+- An old **Major** number usually means the software has missed many fixes → higher chance of known vulnerabilities
+
+### 43. Suggested Learning Path
 
 These fundamentals map to a practical progression:
 
