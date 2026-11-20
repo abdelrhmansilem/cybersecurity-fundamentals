@@ -66,15 +66,16 @@
 **Part VI — Systems, Tooling & Mobile**
 
 37. [Linux Commands](#37-linux-commands)
-38. [Bash Scripting Basics](#38-bash-scripting-basics)
-39. [Nmap Scan Techniques & Options](#39-nmap-scan-techniques--options)
-40. [Curl Common Options & Flags](#40-curl-common-options--flags)
-41. [JADX & Mobile Testing](#41-jadx--mobile-testing)
-42. [Quick Tips](#42-quick-tips)
-43. [Understanding Version Numbers (SemVer)](#43-understanding-version-numbers-semver)
-44. [Free Practice Server: Segfault (THC)](#44-free-practice-server-segfault-thc)
+38. [Linux File Permissions (chmod)](#38-linux-file-permissions-chmod)
+39. [Bash Scripting Basics](#39-bash-scripting-basics)
+40. [Nmap Scan Techniques & Options](#40-nmap-scan-techniques--options)
+41. [Curl Common Options & Flags](#41-curl-common-options--flags)
+42. [JADX & Mobile Testing](#42-jadx--mobile-testing)
+43. [Quick Tips](#43-quick-tips)
+44. [Understanding Version Numbers (SemVer)](#44-understanding-version-numbers-semver)
+45. [Free Practice Server: Segfault (THC)](#45-free-practice-server-segfault-thc)
 
-45. [Suggested Learning Path](#45-suggested-learning-path)
+46. [Suggested Learning Path](#46-suggested-learning-path)
 
 ---
 
@@ -1104,7 +1105,71 @@ No-install browser tools that help at every stage of hunting — from domain int
 | `sudo` | Execute a command with superuser (root) privileges |
 | `clear` | Clear the terminal screen |
 
-### 38. Bash Scripting Basics
+### 38. Linux File Permissions (chmod)
+
+Every file and directory in Linux carries permissions for **three subjects**: the **Owner** (the user who owns it), the **Group**, and **Others** (everyone else).
+
+#### Reading `ls -la` output
+
+```
+-rwxr-x--- 1 ali devs 4096 Jan 01 12:00 file.txt
+```
+
+| Position | Meaning | Values |
+|---|---|---|
+| 1st character | **File type** | `d` = directory · `-` = regular file · `l` = symbolic link |
+| Characters 2–4 | **Owner** permissions | `r` `w` `x` or `-` |
+| Characters 5–7 | **Group** permissions | same |
+| Characters 8–10 | **Others** permissions | same |
+
+**What `rwx` means — note the difference between files and directories:**
+
+| Letter | Value | On a **file** | On a **directory** |
+|---|---|---|---|
+| `r` (read) | 4 | View the file's contents | List the files inside |
+| `w` (write) | 2 | Modify the file | Create / delete files inside |
+| `x` (execute) | 1 | Run it (script / binary) | Enter it (`cd`) |
+| `-` | 0 | Permission not granted | — |
+
+#### Numeric chmod — one digit per subject, each digit is the **sum** of granted permissions
+
+```
+r = 4    w = 2    x = 1
+```
+
+**Example: `chmod 750 file.txt`**
+
+| Digit | Who | Calculation | Result |
+|---|---|---|---|
+| **7** | Owner | 4 + 2 + 1 | `rwx` — full access |
+| **5** | Group | 4 + 1 | `r-x` — read + execute, no write |
+| **0** | Others | 0 | `---` — no access at all |
+
+Final mode: `-rwxr-x---`
+
+#### Common permission values
+
+| Number | String | Typical Use |
+|---|---|---|
+| 777 | `rwxrwxrwx` | Everyone does everything — **almost always a misconfiguration** |
+| 755 | `rwxr-xr-x` | Scripts & directories others should read/enter |
+| 700 | `rwx------` | Fully private — owner only |
+| 644 | `rw-r--r--` | Normal files (owner edits, others just read) |
+| 600 | `rw-------` | Secrets like `~/.ssh/id_rsa` |
+
+#### Symbolic mode (the alternative syntax)
+
+`u`/`g`/`o` = user/group/others, and `+`/`-`/`=` = add/remove/set exactly:
+
+```bash
+chmod u+x file.sh    # add execute for the owner
+chmod g-w file.txt   # remove write from the group
+chmod o=r file.txt   # others get exactly read
+```
+
+**Security note:** a leading 4th digit enables special bits — `setuid` (4), `setgid` (2), `sticky` (1), e.g. `chmod 4755`. A setuid binary runs as the **file's owner** (often root) — which is exactly why SUID binaries are a classic privilege-escalation target (`find / -perm -4000`).
+
+### 39. Bash Scripting Basics
 
 **Getting started:**
 
@@ -1185,7 +1250,7 @@ echo "Hello" >> file.txt  # append output to file
 cat < file.txt            # read file as input
 ```
 
-### 39. Nmap Scan Techniques & Options
+### 40. Nmap Scan Techniques & Options
 
 **Scan types:**
 
@@ -1225,7 +1290,7 @@ cat < file.txt            # read file as input
 | `-p-` | Scan all ports (1 to 65535) |
 | `--script vuln` | Scans the target for known vulnerabilities using NSE scripts |
 
-### 40. Curl Common Options & Flags
+### 41. Curl Common Options & Flags
 
 | Flag | Meaning |
 |---|---|
@@ -1245,7 +1310,7 @@ cat < file.txt            # read file as input
 | `-s` / `--silent` | Silent mode — no progress meter or error messages |
 | `-x` / `--proxy` | Route traffic through an HTTP/SOCKS proxy (e.g. `-x 127.0.0.1:8080`) |
 
-### 41. JADX & Mobile Testing
+### 42. JADX & Mobile Testing
 
 **How to use:** open the decompiled APK in JADX, press `Ctrl + Shift + F` (global search), then search the keyword groups below one category at a time. Each group surfaces a different type of sensitive information.
 
@@ -1280,7 +1345,7 @@ cat < file.txt            # read file as input
 | `eyJ` | JWT tokens (Base64 of the `{"` header) |
 | `key-` / `pk.` | Generic API key prefixes seen across mail/API services |
 
-### 42. Quick Tips
+### 43. Quick Tips
 
 **IP spoofing via headers** (worth testing on targets — some backends trust these):
 
@@ -1290,7 +1355,7 @@ Client-IP: 127.0.0.1
 X-Client-IP: 127.0.0.1
 ```
 
-### 43. Understanding Version Numbers (SemVer)
+### 44. Understanding Version Numbers (SemVer)
 
 Most software releases follow **Semantic Versioning (SemVer)** — three numbers separated by dots:
 
@@ -1312,7 +1377,7 @@ MAJOR . MINOR . PATCH
 - **CVEs apply to specific version ranges** — knowing the exact version tells you which known vulnerabilities might work
 - An old **Major** number usually means the software has missed many fixes → higher chance of known vulnerabilities
 
-### 44. Free Practice Server: Segfault (THC)
+### 45. Free Practice Server: Segfault (THC)
 
 [Segfault](https://www.thc.org/segfault) — a project by **The Hacker's Choice** — gives you a **free, disposable root server** for legal security testing and practice. A fresh VM is created for **every SSH connection**, preloaded with Kali-style tooling, with VPN-routed egress and transparent Tor support.
 
@@ -1329,7 +1394,7 @@ ssh root@segfault.net
 
 **Good for:** a free Kali-like VPS · a SOCKS proxy (`ssh -D 30314 root@segfault.net`) · safely testing attacks and tools. Servers are **disposable** — everything is wiped when you disconnect, so treat it as a scratch environment. Legal practice only.
 
-### 45. Suggested Learning Path
+### 46. Suggested Learning Path
 
 These fundamentals map to a practical progression:
 
