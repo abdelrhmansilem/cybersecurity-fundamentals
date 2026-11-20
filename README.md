@@ -59,18 +59,19 @@
 31. [Networking Basics: OSI Model & TCP/UDP](#31-networking-basics-osi-model--tcpudp)
 32. [DNS Record Types](#32-dns-record-types)
 33. [OSINT & Recon Tools](#33-osint--recon-tools)
-34. [Common Ports & Protocols](#34-common-ports--protocols)
+34. [Hunting Web Apps (Online Recon Tools)](#34-hunting-web-apps-online-recon-tools)
+35. [Common Ports & Protocols](#35-common-ports--protocols)
 
 **Part VI — Systems, Tooling & Mobile**
 
-35. [Linux Commands](#35-linux-commands)
-36. [Bash Scripting Basics](#36-bash-scripting-basics)
-37. [Nmap Scan Techniques & Options](#37-nmap-scan-techniques--options)
-38. [Curl Common Options & Flags](#38-curl-common-options--flags)
-39. [JADX & Mobile Testing](#39-jadx--mobile-testing)
-40. [Quick Tips](#40-quick-tips)
+36. [Linux Commands](#36-linux-commands)
+37. [Bash Scripting Basics](#37-bash-scripting-basics)
+38. [Nmap Scan Techniques & Options](#38-nmap-scan-techniques--options)
+39. [Curl Common Options & Flags](#39-curl-common-options--flags)
+40. [JADX & Mobile Testing](#40-jadx--mobile-testing)
+41. [Quick Tips](#41-quick-tips)
 
-41. [Suggested Learning Path](#41-suggested-learning-path)
+42. [Suggested Learning Path](#42-suggested-learning-path)
 
 ---
 
@@ -855,7 +856,99 @@ amass enum -passive -d target.com
 cat subs.txt | httpx -title -status-code -tech-detect
 ```
 
-### 34. Common Ports & Protocols
+### 34. Hunting Web Apps (Online Recon Tools)
+
+No-install browser tools that help at every stage of hunting — from domain intel to SSL testing. **Use them only against targets you are authorized to test.**
+
+**WHOIS & Domain Information**
+
+| Site | Purpose |
+|---|---|
+| [who.is](https://who.is/) | WHOIS lookup |
+| [whois.domaintools.com](https://whois.domaintools.com/) | WHOIS lookup |
+| [networking.ringofsaturn.com](https://networking.ringofsaturn.com/Tools/whois.php) | WHOIS lookup |
+| [betterwhois.com](https://www.betterwhois.com/whois) | WHOIS lookup |
+
+**DNS & Network Reconnaissance**
+
+| Site | Purpose |
+|---|---|
+| [viewdns.info](https://viewdns.info/) | DNS & IP tools |
+| [dnsdumpster.com](https://dnsdumpster.com/) | DNS enumeration |
+| [crt.sh](https://crt.sh/) | Certificate search (subdomains) |
+| [bgp.he.net](https://bgp.he.net/) | BGP & ASN toolkit |
+| [securitytrails.com](https://securitytrails.com/) | DNS & domain recon |
+| [digwebinterface.com](https://digwebinterface.com/) | DNS query interface |
+| [mxtoolbox.com](https://mxtoolbox.com/) | Mail & DNS diagnostics (MX, SPF, blacklists) |
+
+**Attack Surface & Specialized Search Engines**
+
+| Site | Purpose |
+|---|---|
+| [netlas.io](https://netlas.io/) | Attack surface search |
+| [search.censys.io](https://search.censys.io/) | Attack surface search |
+| [shodan.io](https://www.shodan.io/) | IoT / exposed services search engine |
+| [leakix.net](https://leakix.net/) | Leak & threat search |
+| [criminalip.io](https://www.criminalip.io/) | Cyber threat search |
+| [binaryedge.io](https://www.binaryedge.io/) | Attack surface search |
+| [fullhunt.io](https://fullhunt.io/) | Attack surface search |
+
+**OSINT & Target Profiling**
+
+| Site | Purpose |
+|---|---|
+| [web.archive.org](https://web.archive.org/) | Historical archiving — old pages & endpoints |
+| [crunchbase.com](https://www.crunchbase.com/) | Company OSINT |
+| [peoplefinders.com](https://www.peoplefinders.com/) | People OSINT |
+| [builtwith.com](https://builtwith.com/) | Technology profiling |
+| [searchdns.netcraft.com](https://searchdns.netcraft.com/) | Site profiling |
+| [osintframework.com](https://osintframework.com) | The master index — OSINT tools organized by category |
+
+**Vulnerability Scanners & Pentesting Platforms**
+
+| Site | Purpose |
+|---|---|
+| [pentest-tools.com](https://pentest-tools.com/) | Pentest platform |
+| [cloud.projectdiscovery.io](https://cloud.projectdiscovery.io/) | Attack surface management |
+| [detectify.com](https://detectify.com/) | DAST / vulnerability scanner |
+| [intruder.io](https://www.intruder.io/) | Vulnerability scanner |
+| [probely.com](https://probely.com/) | Web vulnerability scanner |
+| [hostedscan.com](https://hostedscan.com/) | Hosted vulnerability scanner |
+| [assetnote.io](https://assetnote.io/) | Attack surface management |
+
+**Threat Intelligence & Reputation**
+
+| Site | Purpose |
+|---|---|
+| [urlscan.io](https://urlscan.io/) | Sandbox & URL scanner |
+| [virustotal.com](https://www.virustotal.com) | Malware & threat analysis |
+| [urlvoid.com](https://www.urlvoid.com/) | Domain reputation |
+| [abuseipdb.com](https://abuseipdb.com/) | IP reputation |
+
+**Web Configuration & SSL Testing**
+
+| Site | Purpose |
+|---|---|
+| [observatory.mozilla.org](https://observatory.mozilla.org/) | Web configuration scanner |
+| [securityheaders.com](https://securityheaders.com/) | Security headers scanner |
+| [ssllabs.com/ssltest](https://www.ssllabs.com/ssltest/) | SSL/TLS scanner |
+| [hardenize.com](https://www.hardenize.com/) | Security posture scanner |
+
+**API & Payload Testing**
+
+| Site | Purpose |
+|---|---|
+| [payloadplayground.com](https://payloadplayground.com/) | Payload generation |
+| [42crunch.com](https://42crunch.com/) | API security |
+
+**General Utilities**
+
+| Site | Purpose |
+|---|---|
+| [dropbox.com](https://www.dropbox.com/) | Cloud storage (exfil staging / payload hosting in tests) |
+| [mail.tm](https://mail.tm) | Disposable email — useful for testing sign-up flows |
+
+### 35. Common Ports & Protocols
 
 | Port | Protocol | Purpose |
 |---|---|---|
@@ -889,7 +982,7 @@ cat subs.txt | httpx -title -status-code -tech-detect
 
 ## Part VI — Systems, Tooling & Mobile
 
-### 35. Linux Commands
+### 36. Linux Commands
 
 | Command | Purpose |
 |---|---|
@@ -925,7 +1018,7 @@ cat subs.txt | httpx -title -status-code -tech-detect
 | `sudo` | Execute a command with superuser (root) privileges |
 | `clear` | Clear the terminal screen |
 
-### 36. Bash Scripting Basics
+### 37. Bash Scripting Basics
 
 **Getting started:**
 
@@ -1006,7 +1099,7 @@ echo "Hello" >> file.txt  # append output to file
 cat < file.txt            # read file as input
 ```
 
-### 37. Nmap Scan Techniques & Options
+### 38. Nmap Scan Techniques & Options
 
 **Scan types:**
 
@@ -1046,7 +1139,7 @@ cat < file.txt            # read file as input
 | `-p-` | Scan all ports (1 to 65535) |
 | `--script vuln` | Scans the target for known vulnerabilities using NSE scripts |
 
-### 38. Curl Common Options & Flags
+### 39. Curl Common Options & Flags
 
 | Flag | Meaning |
 |---|---|
@@ -1066,7 +1159,7 @@ cat < file.txt            # read file as input
 | `-s` / `--silent` | Silent mode — no progress meter or error messages |
 | `-x` / `--proxy` | Route traffic through an HTTP/SOCKS proxy (e.g. `-x 127.0.0.1:8080`) |
 
-### 39. JADX & Mobile Testing
+### 40. JADX & Mobile Testing
 
 **How to use:** open the decompiled APK in JADX, press `Ctrl + Shift + F` (global search), then search the keyword groups below one category at a time. Each group surfaces a different type of sensitive information.
 
@@ -1101,7 +1194,7 @@ cat < file.txt            # read file as input
 | `eyJ` | JWT tokens (Base64 of the `{"` header) |
 | `key-` / `pk.` | Generic API key prefixes seen across mail/API services |
 
-### 40. Quick Tips
+### 41. Quick Tips
 
 **IP spoofing via headers** (worth testing on targets — some backends trust these):
 
@@ -1111,7 +1204,7 @@ Client-IP: 127.0.0.1
 X-Client-IP: 127.0.0.1
 ```
 
-### 41. Suggested Learning Path
+### 42. Suggested Learning Path
 
 These fundamentals map to a practical progression:
 
