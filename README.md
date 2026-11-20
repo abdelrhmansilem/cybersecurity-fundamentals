@@ -71,8 +71,9 @@
 40. [JADX & Mobile Testing](#40-jadx--mobile-testing)
 41. [Quick Tips](#41-quick-tips)
 42. [Understanding Version Numbers (SemVer)](#42-understanding-version-numbers-semver)
+43. [Free Practice Server: Segfault (THC)](#43-free-practice-server-segfault-thc)
 
-43. [Suggested Learning Path](#43-suggested-learning-path)
+44. [Suggested Learning Path](#44-suggested-learning-path)
 
 ---
 
@@ -1227,7 +1228,24 @@ MAJOR . MINOR . PATCH
 - **CVEs apply to specific version ranges** — knowing the exact version tells you which known vulnerabilities might work
 - An old **Major** number usually means the software has missed many fixes → higher chance of known vulnerabilities
 
-### 43. Suggested Learning Path
+### 43. Free Practice Server: Segfault (THC)
+
+[Segfault](https://www.thc.org/segfault) — a project by **The Hacker's Choice** — gives you a **free, disposable root server** for legal security testing and practice. A fresh VM is created for **every SSH connection**, preloaded with Kali-style tooling, with VPN-routed egress and transparent Tor support.
+
+```bash
+ssh root@segfault.net
+# password: segfault
+```
+
+**How it works:**
+
+1. Connect with the shared password: `segfault`
+2. Wait ~60 seconds and press Enter — the system generates a **unique secret** for your session
+3. **Keep that secret** — it's how you reconnect to *your* instance (nobody else can access it — the shared password only creates new servers)
+
+**Good for:** a free Kali-like VPS · a SOCKS proxy (`ssh -D 30314 root@segfault.net`) · safely testing attacks and tools. Servers are **disposable** — everything is wiped when you disconnect, so treat it as a scratch environment. Legal practice only.
+
+### 44. Suggested Learning Path
 
 These fundamentals map to a practical progression:
 
