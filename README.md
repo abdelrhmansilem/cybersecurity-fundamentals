@@ -13,6 +13,7 @@
 ## Table of Contents
 
 **Part I — Foundations**
+
 1. [The 18 Cybersecurity Fields](#1-the-18-cybersecurity-fields)
 2. [Types of Hackers](#2-types-of-hackers)
 3. [Engagements: Scope, Rules & Methodologies](#3-engagements-scope-rules--methodologies)
@@ -23,10 +24,12 @@
 8. [Controls, Frameworks & Compliance](#8-controls-frameworks--compliance)
 
 **Part II — Cryptography & Access**
+
 9. [Encryption & Hashing](#9-encryption--hashing)
 10. [Authentication vs Authorization](#10-authentication-vs-authorization)
 
 **Part III — Web & HTTP Deep Dive**
+
 11. [HTTP & HTTPS](#11-http--https)
 12. [URL Anatomy](#12-url-anatomy)
 13. [Requests & Responses](#13-requests--responses)
@@ -41,6 +44,7 @@
 22. [Request Targets (Path Forms)](#22-request-targets-path-forms)
 
 **Part IV — Offensive Security**
+
 23. [Vulnerabilities, PoCs & Exploits](#23-vulnerabilities-pocs--exploits)
 24. [What Is a Payload?](#24-what-is-a-payload)
 25. [OWASP Top 10](#25-owasp-top-10)
@@ -50,6 +54,7 @@
 29. [Bug Bounty Reporting](#29-bug-bounty-reporting)
 
 **Part V — Recon & OSINT**
+
 30. [Passive Reconnaissance](#30-passive-reconnaissance)
 31. [Networking Basics: OSI Model & TCP/UDP](#31-networking-basics-osi-model--tcpudp)
 32. [DNS Record Types](#32-dns-record-types)
@@ -57,6 +62,7 @@
 34. [Common Ports & Protocols](#34-common-ports--protocols)
 
 **Part VI — Systems, Tooling & Mobile**
+
 35. [Linux Commands](#35-linux-commands)
 36. [Bash Scripting Basics](#36-bash-scripting-basics)
 37. [Nmap Scan Techniques & Options](#37-nmap-scan-techniques--options)
@@ -1062,30 +1068,38 @@ cat < file.txt            # read file as input
 
 ### 39. JADX & Mobile Testing
 
-Search shortcuts in JADX: `Ctrl + Shift + F` — then hunt for these strings inside decompiled APKs:
+**How to use:** open the decompiled APK in JADX, press `Ctrl + Shift + F` (global search), then search the keyword groups below one category at a time. Each group surfaces a different type of sensitive information.
 
-```
-https:// & http://
-/api/   /v1/ & /v2/ & /v3/ & /v4/   /graphql
-s3.amazonaws.com & s3:// & amazonaws
-Bucket & putObject & Presigned & storage.googleapis.com & blob.core.windows.net
-Authorization & Bearer & X-Api-Key & apiKey & secret
-"Intro for API keys": AIza & AKIA & ASIA
-BASE_URL & API_URL & ENDPOINT & BuildConfig
-sk_live_ & pk_live_ & rk_live_ & rzp_live_
-SG. & key- & pk. & ghp_ & gho_ & glpat- & xoxb- & xoxp- & eyJ
-wss:// & ws:// & socket.io & Socket & WebSocket
-mqtt:// & mqtts:// & MQTT
-query { & mutation { & graphql
-webhook & callback & oauth & redirect_uri
-intent:// & app:// & scheme
-staging & sandbox & dev. & beta & uat & internal & test
-.json & .xml & .env & .pem & .key & .sqlite & config
-firebaseio.com & supabase.co & execute-api.cloudfront.net
-AES & DES & HMAC & SHA256 & MD5 & SecretKey & IvParameterSpec
-```
+**What to search for, by category:**
 
-These keywords surface endpoints, cloud storage, embedded API keys, WebSocket/MQTT connections, hidden environments (staging/uat), crypto usage, and config files inside mobile apps.
+| Category | Keywords | What You'll Find |
+|---|---|---|
+| **Endpoints & API paths** | `https://` · `http://` · `/api/` · `/v1/` `/v2/` `/v3/` `/v4/` · `/graphql` | Backend URLs and API routes the app talks to |
+| **API config constants** | `BASE_URL` · `API_URL` · `ENDPOINT` · `BuildConfig` | Hardcoded server addresses baked in at build time |
+| **Cloud storage & BaaS** | `s3.amazonaws.com` · `s3://` · `amazonaws` · `Bucket` · `putObject` · `Presigned` · `storage.googleapis.com` · `blob.core.windows.net` · `firebaseio.com` · `supabase.co` · `execute-api.cloudfront.net` | S3/GCS/Azure storage usage, pre-signed URLs, Firebase/Supabase backends |
+| **Auth tokens & secrets** | `Authorization` · `Bearer` · `X-Api-Key` · `apiKey` · `secret` | Where the app carries credentials and secrets |
+| **Real-time & messaging** | `wss://` · `ws://` · `socket.io` · `Socket` · `WebSocket` · `mqtt://` · `mqtts://` · `MQTT` | WebSocket and MQTT connections (often unauthenticated) |
+| **GraphQL** | `query {` · `mutation {` · `graphql` | Embedded GraphQL operations |
+| **Webhooks & OAuth** | `webhook` · `callback` · `oauth` · `redirect_uri` | Callback URLs and OAuth flows worth probing |
+| **Deep links** | `intent://` · `app://` · `scheme` | Custom URL schemes and intent handlers |
+| **Hidden environments** | `staging` · `sandbox` · `dev.` · `beta` · `uat` · `internal` · `test` | Non-production servers, often with weaker security |
+| **Config & sensitive files** | `.json` · `.xml` · `.env` · `.pem` · `.key` · `.sqlite` · `config` | Bundled config files, private keys, local databases |
+| **Crypto usage** | `AES` · `DES` · `HMAC` · `SHA256` · `MD5` · `SecretKey` · `IvParameterSpec` | Where the app does encryption — look for weak algorithms and hardcoded keys |
+
+**API key prefixes — identify the provider on sight:**
+
+| Prefix(es) | Belongs To |
+|---|---|
+| `AIza` | Google API keys |
+| `AKIA` / `ASIA` | AWS access key IDs |
+| `sk_live_` / `pk_live_` / `rk_live_` | Stripe live keys (secret / publishable / restricted) |
+| `rzp_live_` | Razorpay live keys |
+| `SG.` | SendGrid API keys |
+| `ghp_` / `gho_` | GitHub tokens (personal access / OAuth) |
+| `glpat-` | GitLab personal access tokens |
+| `xoxb-` / `xoxp-` | Slack tokens (bot / user) |
+| `eyJ` | JWT tokens (Base64 of the `{"` header) |
+| `key-` / `pk.` | Generic API key prefixes seen across mail/API services |
 
 ### 40. Quick Tips
 
