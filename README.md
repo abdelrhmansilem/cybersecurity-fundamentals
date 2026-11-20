@@ -48,32 +48,33 @@
 23. [Vulnerabilities, PoCs & Exploits](#23-vulnerabilities-pocs--exploits)
 24. [What Is a Payload?](#24-what-is-a-payload)
 25. [OWASP Top 10](#25-owasp-top-10)
-26. [CVSS Metrics (Calculating Severity)](#26-cvss-metrics-calculating-severity)
-27. [The Penetration Testing Process](#27-the-penetration-testing-process)
-28. [MITRE ATT&CK & The Cyber Kill Chain](#28-mitre-attck--the-cyber-kill-chain)
-29. [Bug Bounty Reporting](#29-bug-bounty-reporting)
+26. [SQL, NoSQL & SQL Injection](#26-sql-nosql--sql-injection)
+27. [CVSS Metrics (Calculating Severity)](#27-cvss-metrics-calculating-severity)
+28. [The Penetration Testing Process](#28-the-penetration-testing-process)
+29. [MITRE ATT&CK & The Cyber Kill Chain](#29-mitre-attck--the-cyber-kill-chain)
+30. [Bug Bounty Reporting](#30-bug-bounty-reporting)
 
 **Part V — Recon & OSINT**
 
-30. [Passive Reconnaissance](#30-passive-reconnaissance)
-31. [Networking Basics: OSI Model & TCP/UDP](#31-networking-basics-osi-model--tcpudp)
-32. [DNS Record Types](#32-dns-record-types)
-33. [OSINT & Recon Tools](#33-osint--recon-tools)
-34. [Hunting Web Apps (Online Recon Tools)](#34-hunting-web-apps-online-recon-tools)
-35. [Common Ports & Protocols](#35-common-ports--protocols)
+31. [Passive Reconnaissance](#31-passive-reconnaissance)
+32. [Networking Basics: OSI Model & TCP/UDP](#32-networking-basics-osi-model--tcpudp)
+33. [DNS Record Types](#33-dns-record-types)
+34. [OSINT & Recon Tools](#34-osint--recon-tools)
+35. [Hunting Web Apps (Online Recon Tools)](#35-hunting-web-apps-online-recon-tools)
+36. [Common Ports & Protocols](#36-common-ports--protocols)
 
 **Part VI — Systems, Tooling & Mobile**
 
-36. [Linux Commands](#36-linux-commands)
-37. [Bash Scripting Basics](#37-bash-scripting-basics)
-38. [Nmap Scan Techniques & Options](#38-nmap-scan-techniques--options)
-39. [Curl Common Options & Flags](#39-curl-common-options--flags)
-40. [JADX & Mobile Testing](#40-jadx--mobile-testing)
-41. [Quick Tips](#41-quick-tips)
-42. [Understanding Version Numbers (SemVer)](#42-understanding-version-numbers-semver)
-43. [Free Practice Server: Segfault (THC)](#43-free-practice-server-segfault-thc)
+37. [Linux Commands](#37-linux-commands)
+38. [Bash Scripting Basics](#38-bash-scripting-basics)
+39. [Nmap Scan Techniques & Options](#39-nmap-scan-techniques--options)
+40. [Curl Common Options & Flags](#40-curl-common-options--flags)
+41. [JADX & Mobile Testing](#41-jadx--mobile-testing)
+42. [Quick Tips](#42-quick-tips)
+43. [Understanding Version Numbers (SemVer)](#43-understanding-version-numbers-semver)
+44. [Free Practice Server: Segfault (THC)](#44-free-practice-server-segfault-thc)
 
-44. [Suggested Learning Path](#44-suggested-learning-path)
+45. [Suggested Learning Path](#45-suggested-learning-path)
 
 ---
 
@@ -620,7 +621,90 @@ The OWASP Top 10 — the most critical web application security risks:
 | **A09** | **Security Logging and Monitoring Failures** | Missing breach alerts, lack of log retention, delayed response |
 | **A10** | **Server-Side Request Forgery (SSRF)** | Coercing a vulnerable server to fetch internal resources |
 
-### 26. CVSS Metrics (Calculating Severity)
+### 26. SQL, NoSQL & SQL Injection
+
+Almost every web app sits on a database — understanding how it works is what makes SQL Injection (OWASP A03) possible to find and understand.
+
+#### Relational (SQL) vs Non-Relational (NoSQL)
+
+| | **Relational (SQL)** | **Non-Relational (NoSQL)** |
+|---|---|---|
+| **Data model** | Tables (rows & columns) with a **fixed schema** | Flexible structures: **documents (JSON)**, **key-value**, **wide-column**, **graphs** |
+| **Query language** | Standardized **SQL** | Varies per database (e.g. MongoDB queries) |
+| **Relationships** | Real relations between tables via **foreign keys** + JOINs | Usually no JOINs — data is duplicated/embedded |
+| **Schema** | Defined upfront, changes are expensive | Dynamic — add fields anytime |
+| **Scaling** | Traditionally vertical (bigger server) | Natively horizontal (more servers) |
+| **Examples** | MySQL, PostgreSQL, MSSQL, Oracle, SQLite | MongoDB, Redis, Cassandra, CouchDB, Elasticsearch |
+| **Best for** | Structured data, complex queries, strict transactions (ACID) | Fast-changing data, huge scale, speed |
+
+#### Core SQL commands
+
+| Command | What it does | Example |
+|---|---|---|
+| **SELECT** | Retrieves data | `SELECT * FROM users;` |
+| **WHERE** | Filters rows by a condition | `SELECT * FROM users WHERE id = 1;` |
+| **INSERT** | Adds new rows | `INSERT INTO users (name) VALUES ('ali');` |
+| **UPDATE** | Modifies existing rows | `UPDATE users SET email='new@x.com' WHERE id=1;` |
+| **DELETE** | Removes rows | `DELETE FROM users WHERE id=1;` |
+| **UNION** | Combines the results of two SELECTs — the heart of Union-based SQLi | `SELECT name FROM users UNION SELECT password FROM admin;` |
+| **ORDER BY** | Sorts results (also used in SQLi to count columns) | `SELECT * FROM users ORDER BY id DESC;` |
+| **JOIN** | Combines rows from related tables | `SELECT * FROM users INNER JOIN orders ON users.id = orders.user_id;` |
+
+**More keywords worth knowing:**
+
+| Keyword | Purpose |
+|---|---|
+| `AND` / `OR` | Combine conditions inside WHERE (also the classic injection `' OR 1=1--`) |
+| `LIKE` | Pattern matching (`%` wildcard) |
+| `LIMIT` / `OFFSET` | Restrict and page results |
+| `GROUP BY` / `HAVING` | Aggregate rows and filter groups |
+| `COUNT` / `SUM` / `AVG` | Aggregate functions |
+| `DISTINCT` | Remove duplicates |
+| `CREATE TABLE` / `DROP TABLE` | Define / destroy structure |
+| `--` and `#` | SQL comments — used in injection to cut off the rest of the query |
+
+#### SQL Injection (SQLi)
+
+**Definition:** injecting malicious SQL through untrusted input so the database executes it as part of the application's query.
+
+**Classic example** — a login query built by string concatenation:
+
+```sql
+SELECT * FROM users WHERE user='INPUT' AND pass='INPUT'
+```
+
+Entering `' OR 1=1 --` as the username turns it into:
+
+```sql
+SELECT * FROM users WHERE user='' OR 1=1 --' AND pass='...'
+```
+
+→ the condition is always true and the rest is commented out → **authentication bypass**.
+
+**The three main SQLi categories** (verified terminology):
+
+| Type | How It Works | Sub-Types |
+|---|---|---|
+| **In-Band (Classic)** | The **same channel** is used to launch the attack AND read the results | **Union-based** — appends attacker's data to the real response via `UNION` · **Error-based** — extracts data from database error messages |
+| **Inferential (Blind)** | No data comes back in the response — the attacker reconstructs the database by observing **behavior changes** | **Boolean-based blind** — page content differs on TRUE vs FALSE conditions (`' AND 1=1--` vs `' AND 1=2--`) · **Time-based blind** — the response is delayed by `SLEEP()` / `WAITFOR DELAY` when the condition is true |
+| **Out-of-Band (OOB)** | Data is exfiltrated over a **different channel** (e.g. DNS/HTTP callbacks to the attacker's server) — used when the response channel is unavailable; depends on DB features like MSSQL `xp_dirtree` or Oracle `UTL_HTTP` | DNS exfiltration, HTTP callbacks |
+
+**Also worth knowing:** **Second-order SQLi** — the payload is stored now (e.g. in a profile field) and executes later when another part of the app uses that data.
+
+**Quick manual tests:**
+
+```
+'            → breaks the query and may trigger an SQL error
+' OR '1'='1  → always-true condition (auth bypass)
+1' ORDER BY 1--   → increase the number until it errors → counts columns (preparation for UNION)
+' AND SLEEP(5)--  → 5-second delay = time-based blind confirmed
+```
+
+**Automation:** `sqlmap` (the standard), `ghauri`.
+
+**Prevention:** parameterized queries / prepared statements · ORMs · input validation · least-privilege DB users · WAF as an extra layer (never the only one).
+
+### 27. CVSS Metrics (Calculating Severity)
 
 The CVSS score is built from 8 metrics:
 
@@ -635,7 +719,7 @@ The CVSS score is built from 8 metrics:
 | 7 | **Integrity (I)** | None / Low / High |
 | 8 | **Availability (A)** | None / Low / High |
 
-### 27. The Penetration Testing Process
+### 28. The Penetration Testing Process
 
 1. **Reconnaissance** — gather information
 2. **Scanning** — find weaknesses
@@ -644,7 +728,7 @@ The CVSS score is built from 8 metrics:
 5. **Covering Tracks**
 6. **Reporting** — write the report
 
-### 28. MITRE ATT&CK & The Cyber Kill Chain
+### 29. MITRE ATT&CK & The Cyber Kill Chain
 
 **MITRE ATT&CK:**
 
@@ -662,7 +746,7 @@ The CVSS score is built from 8 metrics:
 6. Command & Control
 7. Actions on Objectives
 
-### 29. Bug Bounty Reporting
+### 30. Bug Bounty Reporting
 
 A professional vulnerability report contains:
 
@@ -683,7 +767,7 @@ A clear title with impact, numbered reproduction steps, and a concrete impact st
 
 ## Part V — Recon & OSINT
 
-### 30. Passive Reconnaissance
+### 31. Passive Reconnaissance
 
 **Passive vs Active:**
 
@@ -744,7 +828,7 @@ org:"Target"
 
 **Memory map:** WHOIS/RDAP → domain info · DNS → records · DNSDumpster → subdomains · crt.sh → certificate-based subdomains · Shodan → exposed services.
 
-### 31. Networking Basics: OSI Model & TCP/UDP
+### 32. Networking Basics: OSI Model & TCP/UDP
 
 **OSI (Open Systems Interconnection)** — a standardised model used to demonstrate the theory behind computer networking. It consists of **seven layers**:
 
@@ -765,7 +849,7 @@ org:"Target"
 | **TCP** — Transmission Control Protocol | Reliable, connection-oriented delivery — establishes a connection (3-way handshake), guarantees ordered, error-checked delivery |
 | **UDP** — User Datagram Protocol | Fast, connectionless delivery — no guarantee of arrival or order; used when speed beats reliability (DNS, streaming, gaming) |
 
-### 32. DNS Record Types
+### 33. DNS Record Types
 
 | Record | Meaning |
 |---|---|
@@ -776,7 +860,7 @@ org:"Target"
 | **SOA** | Start of Authority — the primary name server, admin email, and zone serial number |
 | **TXT** | Text Records — arbitrary text, commonly used for SPF, DKIM, DMARC, and domain verification |
 
-### 33. OSINT & Recon Tools
+### 34. OSINT & Recon Tools
 
 **Recommended workflow:**
 
@@ -858,7 +942,7 @@ amass enum -passive -d target.com
 cat subs.txt | httpx -title -status-code -tech-detect
 ```
 
-### 34. Hunting Web Apps (Online Recon Tools)
+### 35. Hunting Web Apps (Online Recon Tools)
 
 No-install browser tools that help at every stage of hunting — from domain intel to SSL testing. **Use them only against targets you are authorized to test.**
 
@@ -950,7 +1034,7 @@ No-install browser tools that help at every stage of hunting — from domain int
 | [dropbox.com](https://www.dropbox.com/) | Cloud storage (exfil staging / payload hosting in tests) |
 | [mail.tm](https://mail.tm) | Disposable email — useful for testing sign-up flows |
 
-### 35. Common Ports & Protocols
+### 36. Common Ports & Protocols
 
 | Port | Protocol | Purpose |
 |---|---|---|
@@ -984,7 +1068,7 @@ No-install browser tools that help at every stage of hunting — from domain int
 
 ## Part VI — Systems, Tooling & Mobile
 
-### 36. Linux Commands
+### 37. Linux Commands
 
 | Command | Purpose |
 |---|---|
@@ -1020,7 +1104,7 @@ No-install browser tools that help at every stage of hunting — from domain int
 | `sudo` | Execute a command with superuser (root) privileges |
 | `clear` | Clear the terminal screen |
 
-### 37. Bash Scripting Basics
+### 38. Bash Scripting Basics
 
 **Getting started:**
 
@@ -1101,7 +1185,7 @@ echo "Hello" >> file.txt  # append output to file
 cat < file.txt            # read file as input
 ```
 
-### 38. Nmap Scan Techniques & Options
+### 39. Nmap Scan Techniques & Options
 
 **Scan types:**
 
@@ -1141,7 +1225,7 @@ cat < file.txt            # read file as input
 | `-p-` | Scan all ports (1 to 65535) |
 | `--script vuln` | Scans the target for known vulnerabilities using NSE scripts |
 
-### 39. Curl Common Options & Flags
+### 40. Curl Common Options & Flags
 
 | Flag | Meaning |
 |---|---|
@@ -1161,7 +1245,7 @@ cat < file.txt            # read file as input
 | `-s` / `--silent` | Silent mode — no progress meter or error messages |
 | `-x` / `--proxy` | Route traffic through an HTTP/SOCKS proxy (e.g. `-x 127.0.0.1:8080`) |
 
-### 40. JADX & Mobile Testing
+### 41. JADX & Mobile Testing
 
 **How to use:** open the decompiled APK in JADX, press `Ctrl + Shift + F` (global search), then search the keyword groups below one category at a time. Each group surfaces a different type of sensitive information.
 
@@ -1196,7 +1280,7 @@ cat < file.txt            # read file as input
 | `eyJ` | JWT tokens (Base64 of the `{"` header) |
 | `key-` / `pk.` | Generic API key prefixes seen across mail/API services |
 
-### 41. Quick Tips
+### 42. Quick Tips
 
 **IP spoofing via headers** (worth testing on targets — some backends trust these):
 
@@ -1206,7 +1290,7 @@ Client-IP: 127.0.0.1
 X-Client-IP: 127.0.0.1
 ```
 
-### 42. Understanding Version Numbers (SemVer)
+### 43. Understanding Version Numbers (SemVer)
 
 Most software releases follow **Semantic Versioning (SemVer)** — three numbers separated by dots:
 
@@ -1228,7 +1312,7 @@ MAJOR . MINOR . PATCH
 - **CVEs apply to specific version ranges** — knowing the exact version tells you which known vulnerabilities might work
 - An old **Major** number usually means the software has missed many fixes → higher chance of known vulnerabilities
 
-### 43. Free Practice Server: Segfault (THC)
+### 44. Free Practice Server: Segfault (THC)
 
 [Segfault](https://www.thc.org/segfault) — a project by **The Hacker's Choice** — gives you a **free, disposable root server** for legal security testing and practice. A fresh VM is created for **every SSH connection**, preloaded with Kali-style tooling, with VPN-routed egress and transparent Tor support.
 
@@ -1245,7 +1329,7 @@ ssh root@segfault.net
 
 **Good for:** a free Kali-like VPS · a SOCKS proxy (`ssh -D 30314 root@segfault.net`) · safely testing attacks and tools. Servers are **disposable** — everything is wiped when you disconnect, so treat it as a scratch environment. Legal practice only.
 
-### 44. Suggested Learning Path
+### 45. Suggested Learning Path
 
 These fundamentals map to a practical progression:
 
